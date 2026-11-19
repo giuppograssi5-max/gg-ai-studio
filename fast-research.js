@@ -1,6 +1,6 @@
 import { addResearchFollowups } from './research-followups.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages } from './search-images.js?v=20261119-research-readability';
+import { attachImages } from './search-images.js?v=20261119-inline-images';
 import { readAIStream } from './ai-stream.js';
 const q = s => document.querySelector(s), cache = new Map();
 let current, sequence = 0;
@@ -73,7 +73,7 @@ async function search(prompt, { history: retryHistory } = {}) {
     }
     if (run !== sequence || controller.signal.aborted || !result.isConnected) return;
     clearTimeout(paint); text = data.summary || data.results[0]?.description || 'Nessun risultato. Prova una ricerca più specifica.'; renderText(); renderSources(data.results);
-    attachImages(sources, query, { signal: controller.signal });
+    attachImages(body, query, { signal: controller.signal, position: 'before' });
     if (data.scope) body.before(node('p', data.scope, 'research-scope'));
     status.textContent = data.incomplete ? 'Risposta parziale · chiedi di continuare.' : cached ? 'Ricerca completata · dalla cache' : 'Ricerca completata';
     const actions = node('div', null, 'research-actions');

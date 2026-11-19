@@ -2,7 +2,7 @@ import { readAIStream } from './ai-stream.js';
 import { addResearchFollowups } from './research-followups.js';
 import { isNewsRequest } from './news-intent.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-research-readability';
+import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-inline-images';
 import { buildOfficeFile, describeFile, detectFileFormat, fileName, FILE_TYPES } from './office-files.js';
 // Office files travel in chat history as a fenced JSON block so the AI can revise them later.
 const FILE_BLOCK = /\n*```gg-file\n([\s\S]*?)\n```\s*$/;
@@ -153,7 +153,7 @@ function fileCard(spec) {
           } catch {}
         }
         if (data.sources?.length) body.append(sources);
-        if (!shared && wantsImages(payload.prompt, payload.mode, payload.files?.length)) attachImages(body, payload.prompt, { signal: controller.signal });
+        if (!shared && wantsImages(payload.prompt, payload.mode, payload.files?.length)) attachImages(body, payload.prompt, { signal: controller.signal, position: 'before' });
         if (data.image && /^image\/(png|jpeg|webp)$/.test(data.image.mimeType) && /^[A-Za-z0-9+/]+={0,2}$/.test(data.image.data)) {
           const image = el('img'); image.alt = payload.prompt; image.src = `data:${data.image.mimeType};base64,${data.image.data}`; body.append(image);
           const download = el('a', 'Download image'); download.href = image.src; download.download = 'gg-image.' + data.image.mimeType.split('/')[1]; body.append(download);
@@ -293,7 +293,7 @@ function fileCard(spec) {
         if (imageSubject) {
           const lang = window.GG_LANGUAGE?.wiki || 'it';
           const link = googleImagesLink(imageSubject, lang); result.append(link);
-          attachImages(link, imageSubject, { lang, showGoogle: false });
+          attachImages(link, imageSubject, { lang, position: 'before', showGoogle: false });
         } else result.append(el('p', 'Quale immagine vuoi cercare?'));
         input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
         mode.value = 'auto'; status.textContent = ''; result.scrollIntoView({ block: 'start' });

@@ -18,3 +18,32 @@
 .image-viewer-close{position:absolute;top:8px;right:10px;margin:0;padding:2px 10px;font-size:22px;line-height:1;border:0;background:transparent;color:inherit;cursor:pointer}
 @media(max-width:760px){.search-image,.search-images:first-child .search-image:first-child{width:132px}.search-image button{height:100px}.search-image-skeleton{flex-basis:132px;height:100px}}
 @media(prefers-reduced-motion:reduce){.search-image img{transition:none}.search-image-skeleton{animation:none}}
+
+#messages .search-images {
+  max-inline-size: 46rem;
+  margin-block: .65rem 1rem;
+}
+#messages .search-images-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .65rem;
+  overflow: visible;
+}
+#messages .search-image {
+  width: 100%;
+  min-width: 0;
+}
+#messages .search-image button {
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+#messages .search-image-skeleton {
+  height: auto;
+  aspect-ratio: 4 / 3;
+  animation: none;
+}
+@media (max-width: 620px) {
+  #messages .search-images-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
