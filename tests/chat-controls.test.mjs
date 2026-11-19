@@ -1,3 +1,4 @@
+import { imageSearchQuery } from '../search-images.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -31,7 +32,7 @@ async function chatHarness(respond) {
   const window = { addEventListener: (name, fn) => { listeners[name] = fn; } };
   const context = vm.createContext({ window, document, navigator: { language: 'en' }, AbortController, URL, Blob, Event, setTimeout, clearTimeout, readAIStream,
     CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
-    addResearchFollowups: () => {}, isNewsRequest: () => false, detectFileFormat: () => null, FILE_TYPES: {}, wantsImages: () => false,
+    addResearchFollowups: () => {}, isNewsRequest: () => false, detectFileFormat: () => null, FILE_TYPES: {}, imageSearchQuery, googleImagesLink: query => Object.assign(new Element('a'), { textContent: query }), attachImages: () => {}, wantsImages: () => false,
     renderMarkdown: text => { const n = new Element(); n.textContent = text; return n; },
     message: (role, text) => { const n = new Element(); n.role = role; n.textContent = text; q('#messages').append(n); return n; },
     fetch: async (url, init) => { const body = JSON.parse(init.body); requests.push(body); return respond(body, init, requests.length); },
@@ -120,4 +121,11 @@ test('Auto uses conversational follow-ups after research and retains earlier ans
   assert.equal(h.requests[1].history[1].content, 'Contextual answer');
   await h.submit('Search current prices today', 'auto');
   assert.equal(h.requests[2].mode, 'search');
+});
+
+test('image prompts bypass the AI research request', async () => {
+  const h = await chatHarness(() => assert.fail('Unexpected AI request'));
+  await h.submit('Cerca una foto di Roma', 'auto');
+  assert.equal(h.requests.length, 0);
+  assert.ok(find(h.latest(), 'Roma'));
 });
