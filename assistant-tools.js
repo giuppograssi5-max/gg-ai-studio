@@ -2,7 +2,7 @@ import { readAIStream } from './ai-stream.js';
 import { addResearchFollowups } from './research-followups.js';
 import { isNewsRequest } from './news-intent.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages, wantsImages } from './search-images.js?v=20261118-auth9';
+import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-google-images';
 import { buildOfficeFile, describeFile, detectFileFormat, fileName, FILE_TYPES } from './office-files.js';
 // Office files travel in chat history as a fenced JSON block so the AI can revise them later.
 const FILE_BLOCK = /\n*```gg-file\n([\s\S]*?)\n```\s*$/;
@@ -281,6 +281,23 @@ function fileCard(spec) {
       if (event.target.id !== 'chatform') return;
       const selected = mode.value, prompt = input.value.trim();
       if (!prompt) return;
+      const imageSubject = ['auto', 'chat', 'search'].includes(selected) && !files.length && !attach.disabled ? imageSearchQuery(prompt) : null;
+      if (imageSubject !== null) {
+        event.preventDefault(); event.stopImmediatePropagation();
+        if (active && !active.signal.aborted) { status.textContent = 'Attendi la risposta in corso o premi Stop.'; return; }
+        q('.welcome').classList.add('hidden'); q('#ideas').classList.add('hidden'); q('.research-shortcuts')?.classList.add('hidden');
+        q('.composer-wrap').before(q('#messages'));
+        message('user', prompt);
+        const result = message('assistant', ''); result.classList.add('research-message');
+        if (imageSubject) {
+          const lang = window.GG_LANGUAGE?.wiki || 'it';
+          const link = googleImagesLink(imageSubject, lang); result.append(link);
+          attachImages(link, imageSubject, { lang, showGoogle: false });
+        } else result.append(el('p', 'Quale immagine vuoi cercare?'));
+        input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
+        mode.value = 'auto'; status.textContent = ''; result.scrollIntoView({ block: 'start' });
+        return;
+      }
       // Plain research uses the dedicated streaming bar; attachments keep multimodal handling.
       if (selected === 'search' && !files.length && !attach.disabled) return;
       const news = isNewsRequest(prompt, selected);

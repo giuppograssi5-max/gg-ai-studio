@@ -1,5 +1,16 @@
 // Image gallery backed by Google Images search on the server.
 import { safeImage, imageQuery } from './images-core.js';
+export function imageSearchQuery(prompt) {
+ const request = /^(?:(?:per favore[, ]+|please[, ]+))?(?:(?:mi\s+)?(?:cerca(?:mi)?|ricerca|trova(?:mi)?|mostra(?:mi)?|fammi vedere)|(?:search(?: for)?|find(?: me)?|show me))\s+(?:(?:su|on)\s+google\s+(?:immagini|images)\s+)?(?:(?:un[ao]?|delle|degli|le|qualche|some|an?|the)\s+|un['’])?(?:immagin[ei]|fotografi[ae]|foto|images?|photos?|pictures?)\b\s*(?:[:–-]\s*|(?:di|del|dello|della|dei|delle|su|of|for|about)\s+)?/iu;
+ const match = prompt.match(request);
+ return match ? prompt.slice(match[0].length).trim().replace(/[?!]+$/u, '').trim() : null;
+}
+export function googleImagesLink(query, lang) {
+  const link = el("a", "Apri Google Immagini");
+  link.href = "https://www.google.com/search?" + new URLSearchParams({ q: query, udm: "2", hl: lang });
+  link.target = "_blank"; link.rel = "noopener noreferrer";
+  return link;
+}
 const cache = new Map();
 const LOOKUP = /^\s*(?:chi (?:è|e'|era|sono|erano)|cos[’']?è|che cos[’']?è|cosa (?:è|sono)|dov[’']?è|dove si trova|parlami d|informazioni su|cerca|ricerca|trova|mostrami|mostra|fammi vedere|who (?:is|was|are)|what (?:is|are)|where is|tell me about|search|find|show me|look up)(?=[\s,.:;!?]|$)/i;
 const VISUAL = /\b(foto|fotografie|immagini|immagine|photos?|pictures?|images?)\b/i;
@@ -58,7 +69,7 @@ function viewer(image) {
   if (!dialog.open) dialog.showModal();
 }
 // Insert a gallery placeholder now; fill it when Google results arrive.
-export function attachImages(anchor, query, { signal, lang = window.GG_LANGUAGE?.wiki || 'it', position = 'after' } = {}) {
+export function attachImages(anchor, query, { signal, lang = window.GG_LANGUAGE?.wiki || 'it', position = 'after', showGoogle = true } = {}) {
   const section = el('section', null, 'search-images is-loading'); section.setAttribute('aria-label', 'Immagini');
   const heading = el('h4', 'Immagini'); const strip = el('div', null, 'search-images-strip');
   for (let i = 0; i < 4; i++) strip.append(el('span', null, 'search-image-skeleton'));
@@ -68,16 +79,14 @@ export function attachImages(anchor, query, { signal, lang = window.GG_LANGUAGE?
     section.replaceChildren(heading);
     section.classList.remove('is-loading');
     const note = el('p', message, 'search-images-note');
-    const link = el('a', 'Cerca su Google Immagini ↗');
-    link.href = 'https://www.google.com/search?' + new URLSearchParams({ q: imageQuery(query) || query, udm: '2', hl: lang });
-    link.target = '_blank'; link.rel = 'noopener noreferrer';
     const retry = el('button', 'Riprova immagini'); retry.type = 'button';
     retry.onclick = () => {
-      const replacement = attachImages(section, query, { signal, lang });
+      const replacement = attachImages(section, query, { signal, lang, showGoogle });
       section.remove();
       return replacement;
     };
-    section.append(note, retry, link);
+    section.append(note, retry);
+    if (showGoogle) section.append(googleImagesLink(imageQuery(query) || query, lang));
   }
   load(query, lang, signal).then(({ images, placeholder, provider }) => {
     if (signal?.aborted || !section.isConnected) return;
