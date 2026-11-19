@@ -1,3 +1,4 @@
+import { imageSearchQuery } from '../search-images.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -33,7 +34,7 @@ test('news submissions reach the assistant before legacy capture handlers and pr
   const renderMarkdown = (text, sources) => { const root = new Element(); for (const part of text.split(/(\[\d+\])/)) { const n = /^\[(\d+)\]$/.exec(part); if (n && sources?.[n[1] - 1]) { const a = new Element(); a.href = sources[n[1] - 1].url; a.textContent = part; root.append(a); } else if (part) root.append(part); } return root; };
   const galleries = [];
   const followups = [];
-  const context = vm.createContext({ window, document, addResearchFollowups: result => followups.push(result), isNewsRequest, renderMarkdown, detectFileFormat: () => null, FILE_TYPES: {}, buildOfficeFile: async () => null, describeFile: () => '', fileName: () => '', wantsImages: (prompt, mode) => ['news', 'search', 'deep'].includes(mode), attachImages: (anchor, query) => galleries.push(query), CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } }, navigator: { language: 'en' }, AbortController, Event, URL, setTimeout, clearTimeout,
+  const context = vm.createContext({ window, document, addResearchFollowups: result => followups.push(result), isNewsRequest, renderMarkdown, detectFileFormat: () => null, FILE_TYPES: {}, buildOfficeFile: async () => null, describeFile: () => '', fileName: () => '', imageSearchQuery, wantsImages: (prompt, mode) => ['news', 'search', 'deep'].includes(mode), attachImages: (anchor, query) => galleries.push(query), CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } }, navigator: { language: 'en' }, AbortController, Event, URL, setTimeout, clearTimeout,
     message: role => { const element = new Element(); if (role === 'assistant') replies.push(element); return element; },
     fetch: async (url, options) => {
       assert.equal(url, '/gg-assistant'); requests.push(JSON.parse(options.body));

@@ -52,6 +52,8 @@ export function researchResult(message) {
   return { provider: 'Web', summary: paragraphs.join('').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim(), results: results.slice(0, 8), incomplete: ['max_tokens', 'pause_turn'].includes(message.stop_reason), fetchedAt: new Date().toISOString() };
 }
 export async function searchWikipedia(query, language) {
+  const subject = query.replace(/^(?:(?:cerca|ricerca|trova)(?: informazioni)?(?: su(?:lla?|lle|llo|gli|i|l)?| (?:di|del|della))?|(?:search(?: for)?|find|look up)(?: information (?:about|on))?)\s+/iu, '').trim().replace(/[?!.]+$/u, '').trim();
+  query = subject || query;
   const url = new URL(`https://${language}.wikipedia.org/w/api.php`);
   url.search = new URLSearchParams({ action: 'query', generator: 'search', gsrsearch: query, gsrlimit: '6', prop: 'extracts|info', exintro: '1', explaintext: '1', exsentences: '3', inprop: 'url', format: 'json', formatversion: '2' });
   const response = await fetch(url, { signal: AbortSignal.timeout(7000), headers: { 'User-Agent': 'GG-AI-Studio/1.0 (search)' } });
