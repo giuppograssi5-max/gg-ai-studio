@@ -1,0 +1,12 @@
+/community /community.html 200
+/community/ /community 301
+/news-feeds/google/search https://news.google.com/rss/search 200
+/news-feeds/google https://news.google.com/rss 200
+/news-feeds/corriere https://xml2.corriereobjects.it/feed-hp/homepage-restyle-2025.xml 200
+/news-feeds/tgcom24 https://www.tgcom24.mediaset.it/rss/homepage.xml 200
+/news-feeds/bbc https://feeds.bbci.co.uk/news/world/rss.xml 200
+/api/news /gg-news 200
+/api/search /gg-search 200
+/api/connection /gg-connection 200
+/api/entertainment /gg-entertainment 200
+/api/* https://gg-ai-public.giuppograssi5.chatgpt.site/api/:splat 200

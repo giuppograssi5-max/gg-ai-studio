@@ -1,0 +1,27 @@
+{
+  "name": "gg-ios",
+  "private": true,
+  "version": "1.1.0",
+  "description": "Native iOS app for GG (gg-ai-studio.netlify.app)",
+  "scripts": {
+    "setup": "npx cap add ios && npm run assets && npx cap sync ios",
+    "assets": "npx @capacitor/assets generate --ios --iconBackgroundColor '#212121' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#111111'",
+    "sync": "npx cap sync ios",
+    "open": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/network": "^7.0.0",
+    "@capacitor/share": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0"
+  }
+}

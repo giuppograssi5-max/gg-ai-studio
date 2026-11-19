@@ -1,0 +1,249 @@
+.cp {
+  --ink: #262b28;
+  --paper: #f3f2e9;
+  --accent: #d9e7ab;
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(20px, 4vw, 60px);
+  border-radius: 16px;
+  margin-bottom: 38px;
+  font-family: "Trebuchet MS", sans-serif;
+}
+.cp button,
+.cp a {
+  cursor: pointer;
+}
+.cp button,
+.cp-hero a {
+  border: 1px solid #8b9487;
+  background: transparent;
+  color: inherit;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font: inherit;
+}
+.cp button:hover,
+.cp a:hover {
+  background: #d9e7ab;
+}
+.cp :focus-visible {
+  outline: 3px solid #6c782b;
+  outline-offset: 3px;
+}
+.cp-top,
+.cp-feedhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.cp-top > span,
+.cp small,
+.cp-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+.cp-hero {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 32px;
+  padding: 60px 0;
+}
+.cp h1 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(38px, 5vw, 74px);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  margin: 18px 0 24px;
+}
+.cp p {
+  line-height: 1.65;
+}
+.cp-hero p {
+  max-width: 540px;
+}
+.cp-hero a {
+  display: inline-block;
+  margin-top: 18px;
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--paper);
+}
+.cp-mark {
+  background: var(--accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50% 50% 4px 4px;
+  font-family: Georgia, serif;
+  font-size: 100px;
+  transform: rotate(4deg);
+}
+.cp-mark span {
+  font:
+    12px/1.5 "Trebuchet MS",
+    sans-serif;
+  letter-spacing: 0.17em;
+  text-align: center;
+}
+.cp-prompts {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  border-top: 1px solid #acb1a4;
+  border-bottom: 1px solid #acb1a4;
+}
+.cp-prompts article {
+  padding: 28px 24px 24px 0;
+}
+.cp-prompts article + article {
+  padding-left: 28px;
+  border-left: 1px solid #acb1a4;
+}
+.cp h2 {
+  font-family: Georgia, serif;
+  font-size: 27px;
+  font-weight: 400;
+}
+.cp-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 38px;
+  margin-top: 40px;
+}
+.cp label {
+  display: block;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.cp input:not([type="checkbox"]),
+.cp textarea,
+.cp select {
+  box-sizing: border-box;
+  width: 100%;
+  background: #fffef9;
+  color: var(--ink);
+  border: 1px solid #adb2a5;
+  padding: 12px;
+  border-radius: 5px;
+  font: inherit;
+  margin-top: 7px;
+}
+.cp .cp-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+.cp-check input {
+  margin-top: 5px;
+}
+.cp aside form,
+.cp-share {
+  padding: 24px;
+  background: #e8ebde;
+  border-radius: 10px;
+}
+.cp aside form > button[type="submit"] {
+  background: var(--ink);
+  color: var(--paper);
+  width: 100%;
+}
+.cp-share {
+  margin-top: 20px;
+}
+.cp-share summary {
+  cursor: pointer;
+}
+.cp-share a {
+  display: inline-block;
+  margin: 15px 12px 0 0;
+  color: inherit;
+}
+.cp-post {
+  padding: 26px 0;
+  border-bottom: 1px solid #b5baac;
+  overflow-wrap: anywhere;
+}
+.cp-post time {
+  display: block;
+  font-size: 12px;
+  margin: 8px 0;
+  color: #55604e;
+}
+.cp-post p {
+  white-space: pre-wrap;
+}
+.cp-post button {
+  margin: 12px;
+}
+.cp-post a {
+  color: inherit;
+}
+.cp-private {
+  border-top: 1px solid #a6ae9b;
+  padding-top: 32px;
+  margin-top: 48px;
+}
+.cp [hidden] {
+  display: none !important;
+}
+@media (max-width: 760px) {
+  .cp-hero,
+  .cp-columns {
+    grid-template-columns: 1fr;
+  }
+  .cp-mark {
+    display: none;
+  }
+  .cp-prompts {
+    grid-template-columns: 1fr;
+  }
+  .cp-prompts article + article {
+    border-left: 0;
+    border-top: 1px solid #acb1a4;
+    padding-left: 0;
+  }
+  .cp-hero {
+    padding: 32px 0;
+  }
+  .cp-columns {
+    gap: 24px;
+  }
+  .cp {
+    padding: 20px;
+  }
+  .cp aside form {
+    padding: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp * {
+    scroll-behavior: auto;
+  }
+}
+/* Keep the public paper palette independent of the workspace's dark theme. */
+#community .cp h1,
+#community .cp h2 {
+  color: #262b28 !important;
+}
+#community .cp input:not([type="checkbox"]),
+#community .cp textarea,
+#community .cp select {
+  background: #fffef9 !important;
+  color: #262b28 !important;
+}
+#community [hidden] {
+  display: none !important;
+}
+#cp-feed > p {
+  padding: 26px;
+  border: 1px dashed #a8b199;
+  border-radius: 10px;
+  background: #e8ebde;
+}
+.cp button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}

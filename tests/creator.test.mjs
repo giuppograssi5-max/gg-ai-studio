@@ -1,0 +1,8 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { cleanBrief, template, remixURL, readRemix, parseCampaign, markdown } from '../creator-core.js';
+const b={title:'Caffè ☕',audience:'Neighbors',message:'Make a little room for connection.',objective:'Workshop attendance',cta:'Join us'};
+test('brief rejects missing, malformed and overlong values and drops unknown fields',()=>{assert.throws(()=>cleanBrief({}),/Complete/);assert.throws(()=>cleanBrief({...b,title:'a'.repeat(161)}));assert.deepEqual(cleanBrief({...b,token:'not-included'}),b);});
+test('remix URL round trips Unicode and encodes only brief fields',()=>{const url=new URL(remixURL({...b,launch:'private draft'},'https://example.com/?secret=no#old'));assert.equal(url.search,'');assert.deepEqual(readRemix(url.hash),b);assert.ok(!url.href.includes('private'));assert.equal(readRemix('#creator'),null);assert.throws(()=>readRemix('#creator=%'));assert.throws(()=>readRemix('#creator='+ 'a'.repeat(12001)));});
+test('template provides editable story, channel drafts, seven days, cards and launch post',()=>{const c=template(b);assert.match(c.storyboard,/22–30s/);assert.equal(c.plan.match(/Day \d/g).length,7);assert.notEqual(c.instagram,c.linkedin);assert.ok(c.x.length<=280);assert.deepEqual(parseCampaign(JSON.stringify(c)),c);assert.throws(()=>parseCampaign('{"headline":"only"}'));assert.throws(()=>parseCampaign(JSON.stringify({...c,x:'x'.repeat(281)})));});
+test('Markdown preserves edits and labels provenance',()=>{const c=template(b);c.launch='Edited launch';const md=markdown(b,c,'Template fallback');assert.match(md,/Edited launch/);assert.match(md,/Template fallback/);assert.match(md,/Neighbors/);});

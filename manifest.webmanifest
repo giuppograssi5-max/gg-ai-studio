@@ -1,0 +1,20 @@
+{
+  "name": "GG — Your ideas. Good to go.",
+  "short_name": "GG",
+  "description": "GG: AI assistant, news, weather, guided support and entertainment in one app.",
+  "id": "/",
+  "start_url": "/?source=ios-app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "en",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

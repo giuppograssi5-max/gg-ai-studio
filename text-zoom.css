@@ -1,0 +1,11 @@
+/* Text zoom for conversation / search answers. */
+#messages .message{zoom:var(--gg-text-zoom,1)}
+#messages .message :is(img,video,iframe,canvas,svg){zoom:calc(1 / var(--gg-text-zoom,1))}
+.gg-text-zoom{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border:1px solid var(--border,#3b3b3b);border-radius:999px;background:color-mix(in srgb,var(--paper,#212121) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgb(0 0 0 / 25%);color:var(--ink,#ececec)}
+.gg-text-zoom[hidden]{display:none}
+.gg-text-zoom button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:inherit;font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.gg-text-zoom button:hover:not(:disabled){background:var(--accent-soft,#303030)}
+.gg-text-zoom button:disabled{opacity:.35;cursor:default}
+.gg-text-zoom output{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted,#a7a7a7);cursor:pointer;padding:2px 0;user-select:none}
+@media (max-width:700px){.gg-text-zoom{top:auto;bottom:calc(150px + env(safe-area-inset-bottom));right:10px;transform:none}.gg-text-zoom button{width:32px;height:32px;font-size:18px}}
+@media print{.gg-text-zoom{display:none}}

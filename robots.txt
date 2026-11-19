@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.netlify/
+Disallow: /news-feeds/
+Disallow: /gg-
+
+Sitemap: https://gg-ai-studio.netlify.app/sitemap.xml

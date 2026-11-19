@@ -1,0 +1,29 @@
+{
+  "appId": "app.netlify.ggaistudio",
+  "appName": "GG",
+  "webDir": "www",
+  "server": {
+    "url": "https://gg-ai-studio.netlify.app/?source=ios-app",
+    "allowNavigation": ["gg-ai-studio.netlify.app", "*.gg-ai-studio.netlify.app"],
+    "errorPath": "error.html"
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#ffffff",
+    "limitsNavigationsToAppBoundDomains": false,
+    "scheme": "GG",
+    "appendUserAgent": "GG-iOS/1.1"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DEFAULT"
+    }
+  }
+}

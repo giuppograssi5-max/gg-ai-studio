@@ -1,0 +1,9 @@
+[Unit]
+Description=GG VPN peer sync
+After=network-online.target wg-quick@wg0.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/gg-vpn/sync.env
+ExecStart=/usr/bin/python3 /opt/gg-vpn/gg-vpn-sync.py

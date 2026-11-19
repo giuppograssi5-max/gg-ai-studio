@@ -1,0 +1,26 @@
+{
+  "name": "gg-ai-studio",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
+    "@google/genai": "^3.2.0",
+    "@netlify/blobs": "^11.1.9",
+    "@netlify/database": "^2.0.3",
+    "@netlify/identity": "^2.0.1",
+    "@runwayml/sdk": "^4.28.0",
+    "drizzle-orm": "^1.0.0-beta.22",
+    "lumaai": "^1.19.1",
+    "openai": "^6.49.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^1.0.0-beta.22",
+    "playwright": "^1.65.1"
+  },
+  "scripts": {
+    "test:community": "node --test tests/community-public.test.mjs tests/community.test.mjs tests/creator.test.mjs",
+    "test:community:browser": "node tests/community-public.browser.mjs",
+    "test:video": "node --test tests/video-chat.test.mjs tests/video-providers.test.mjs tests/media.test.mjs tests/chat-controls.test.mjs",
+    "test:video:browser": "node tests/video-chat.browser.mjs"
+  }
+}
