@@ -2,7 +2,7 @@ import { readAIStream } from './ai-stream.js';
 import { addResearchFollowups } from './research-followups.js';
 import { isNewsRequest } from './news-intent.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-google-images';
+import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-gallery-recovery';
 import { buildOfficeFile, describeFile, detectFileFormat, fileName, FILE_TYPES } from './office-files.js';
 // Office files travel in chat history as a fenced JSON block so the AI can revise them later.
 const FILE_BLOCK = /\n*```gg-file\n([\s\S]*?)\n```\s*$/;
@@ -289,6 +289,7 @@ function fileCard(spec) {
         q('.composer-wrap').before(q('#messages'));
         message('user', prompt);
         const result = message('assistant', ''); result.classList.add('research-message');
+        const author = result.querySelector('.author'); if (author) author.textContent = 'GG · Ricerca immagini';
         if (imageSubject) {
           const lang = window.GG_LANGUAGE?.wiki || 'it';
           const link = googleImagesLink(imageSubject, lang); result.append(link);

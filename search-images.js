@@ -1,9 +1,16 @@
 // Image gallery backed by Google Images search on the server.
 import { safeImage, imageQuery } from './images-core.js';
 export function imageSearchQuery(prompt) {
- const request = /^(?:(?:per favore[, ]+|please[, ]+))?(?:(?:mi\s+)?(?:cerca(?:mi)?|ricerca|trova(?:mi)?|mostra(?:mi)?|fammi vedere)|(?:search(?: for)?|find(?: me)?|show me))\s+(?:(?:su|on)\s+google\s+(?:immagini|images)\s+)?(?:(?:un[ao]?|delle|degli|le|qualche|some|an?|the)\s+|un['’])?(?:immagin[ei]|fotografi[ae]|foto|images?|photos?|pictures?)\b\s*(?:[:–-]\s*|(?:di|del|dello|della|dei|delle|su|of|for|about)\s+)?/iu;
- const match = prompt.match(request);
- return match ? prompt.slice(match[0].length).trim().replace(/[?!]+$/u, '').trim() : null;
+ const subject = prompt.trim()
+  .replace(/^(?:(?:per favore|please)[,\s]+|(?:mi\s+)?(?:puoi|potresti)\s+|(?:could|can|would) you\s+)+/iu, '')
+  .replace(/^(?:(?:mi\s+)?(?:cerc(?:a|hi|are)(?:mi)?|ricerc(?:a|are)|trov(?:a|i|are)(?:mi)?|mostr(?:a|i|are|ar)(?:mi)?|fammi vedere|farmi vedere)|search(?: for)?|find(?: me)?|show(?: me)?|look up|vorrei(?: vedere)?|voglio(?: vedere)?|i(?: would|'d) like to see)\s+/iu, '')
+  .replace(/^(?:(?:su|on)\s+google\s+(?:immagini|images)\s+)?(?:(?:un[ao]?|delle|degli|le|qualche|alcune|some|an?|the)\s+|un['’])/iu, '');
+ const match = subject.match(/^(?:immagin[ei]|fotografi[ae]|foto|images?|photos?|pictures?)\b\s*/iu);
+ if (!match) return null;
+ return subject.slice(match[0].length)
+  .replace(/^(?:[:–—-]\s*|(?:di|del|dello|della|dei|delle|degli|su|of|for|about)\s+|dell['’])/iu, '')
+  .replace(/\s+(?:(?:su|on)\s+google\s+(?:immagini|images)|per favore|please)[?!.]*$/iu, '')
+  .replace(/[?!.]+$/u, '').trim();
 }
 export function googleImagesLink(query, lang) {
   const link = el("a", "Apri Google Immagini");
@@ -59,8 +66,11 @@ function viewer(image) {
   const img = el('img'); img.alt = image.title; img.referrerPolicy = 'no-referrer';
   // Full-size hosts can rate-limit or block hotlinks while the thumbnail still works.
   img.onerror = () => {
+    if (image.full && image.full !== image.src && !img.dataset.triedThumbnail) {
+      img.dataset.triedThumbnail = 'true'; img.src = image.src; return;
+    }
     img.onerror = null;
-    if (img.src !== image.src) img.src = image.src;
+    img.replaceWith(el('p', 'Anteprima non disponibile. Puoi aprire la fonte qui sotto.'));
   };
   img.src = image.full || image.src;
   const caption = el('p', image.title + (image.credit ? ' — ' + image.credit : ''));
@@ -88,23 +98,26 @@ export function attachImages(anchor, query, { signal, lang = window.GG_LANGUAGE?
     section.append(note, retry);
     if (showGoogle) section.append(googleImagesLink(imageQuery(query) || query, lang));
   }
-  load(query, lang, signal).then(({ images, placeholder, provider }) => {
+  const timeout = AbortSignal.timeout(8000);
+  const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  load(query, lang, requestSignal).then(({ images, placeholder, provider }) => {
     if (signal?.aborted || !section.isConnected) return;
     if (placeholder) {
       showPlaceholder('Nessuna immagine disponibile per questa ricerca.');
       return;
     }
-    const valid = images.map(i => ({ ...i, src: safeImage(i.src), full: safeImage(i.full), page: safeImage(i.page) })).filter(i => i.src && i.page);
+    const valid = images.filter(Boolean).map(i => ({ ...i, src: safeImage(i.src), full: safeImage(i.full), page: safeImage(i.page) })).filter(i => i.src && i.page);
     if (!valid.length) { showPlaceholder('Nessuna immagine disponibile per questa ricerca.'); return; }
     strip.replaceChildren();
     for (const image of valid) {
       const figure = el('figure', null, 'search-image');
       const button = el('button'); button.type = 'button'; button.title = image.title; button.setAttribute('aria-label', 'Ingrandisci: ' + image.title);
-      const img = el('img'); img.src = image.src; img.alt = image.title; img.loading = strip.children.length < 2 ? 'eager' : 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
-      img.onerror = () => { if (image.full && img.src !== image.full) { img.src = image.full; return; } cache.delete('subject-8:' + lang + ':' + query.toLocaleLowerCase().replace(/\s+/g, ' ').trim()); figure.remove(); if (!strip.children.length) showPlaceholder('Nessuna immagine caricabile per questa ricerca.'); };
+      const img = el('img'); img.alt = image.title; img.loading = strip.children.length < 2 ? 'eager' : 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
+      img.onerror = () => { if (image.full && image.full !== image.src && img.dataset.triedFull !== 'true') { img.dataset.triedFull = 'true'; img.src = image.full; return; }
+        img.onerror = null; cache.delete('subject-8:' + lang + ':' + query.toLocaleLowerCase().replace(/\s+/g, ' ').trim()); figure.remove(); if (!strip.children.length) showPlaceholder('Nessuna immagine caricabile per questa ricerca.'); };
       button.append(img); button.onclick = () => viewer(image);
       const caption = el('figcaption', image.title);
-      figure.append(button, caption); strip.append(figure);
+      figure.append(button, caption); strip.append(figure); img.src = image.src;
     }
     section.classList.remove('is-loading');
     section.append(el('p', 'Immagini da ' + (provider || 'ricerca web') + ' · tocca per ingrandire e aprire la fonte.', 'search-images-note'));

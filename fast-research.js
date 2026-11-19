@@ -1,6 +1,6 @@
 import { addResearchFollowups } from './research-followups.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages } from './search-images.js?v=20261118-auth9';
+import { attachImages } from './search-images.js?v=20261119-gallery-recovery';
 import { readAIStream } from './ai-stream.js';
 const q = s => document.querySelector(s), cache = new Map();
 let current, sequence = 0;
