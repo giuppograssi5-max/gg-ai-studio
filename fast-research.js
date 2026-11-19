@@ -1,6 +1,6 @@
 import { addResearchFollowups } from './research-followups.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages } from './search-images.js?v=20261119-gallery-recovery';
+import { attachImages } from './search-images.js?v=20261119-research-readability';
 import { readAIStream } from './ai-stream.js';
 const q = s => document.querySelector(s), cache = new Map();
 let current, sequence = 0;
@@ -35,13 +35,11 @@ async function search(prompt, { history: retryHistory } = {}) {
   const run = ++sequence, result = prepare(prompt);
   const status = node('p', 'Cerco le fonti…', 'fast-status'); status.setAttribute('role', 'status');
   const stop = node('button', 'Interrompi', 'research-stop'); stop.type = 'button'; stop.onclick = () => controller.abort();
-  const body = node('div', null, 'assistant-output has-markdown fast-excerpt');
+  const body = node('div', null, 'assistant-output fast-excerpt');
   const sources = node('details', null, 'research-source-panel'), sourceTitle = node('summary', 'Fonti'), list = node('div', null, 'research-results');
   sources.append(sourceTitle, list); sources.hidden = true;
   result.replaceChildren(node('span', 'GG', 'author'), status, stop, body, sources);
   result.setAttribute('aria-busy', 'true');
-  // Images and the answer load independently; neither waits for the other.
-  attachImages(sources, query, { signal: controller.signal });
   result.scrollIntoView({ behavior: 'auto', block: 'start' });
   let text = '', data, paint;
   function renderSources(items) {
@@ -49,7 +47,7 @@ async function search(prompt, { history: retryHistory } = {}) {
     for (const item of items) { const article = node('article'); article.append(sourceLink(`[${items.indexOf(item) + 1}] ${item.title}`, item.url)); list.append(article); }
     sourceTitle.textContent = `Fonti · ${items.length}`; sources.hidden = !items.length;
   }
-  function renderText() { body.replaceChildren(renderMarkdown(text, data?.results)); }
+  function renderText() { body.classList.add('has-markdown'); body.replaceChildren(renderMarkdown(text, data?.results)); }
   const timeout = setTimeout(() => controller.abort(), 55000);
   try {
     const key = JSON.stringify([window.GG_LANGUAGE?.wiki || 'it', query, history]);
@@ -64,7 +62,7 @@ async function search(prompt, { history: retryHistory } = {}) {
           if (event.type === 'status') status.textContent = event.text;
           if (event.type === 'reset') { text = ''; clearTimeout(paint); paint = null; body.replaceChildren(); sources.hidden = true; }
           if (event.type === 'sources') renderSources(event.results);
-          if (event.type === 'delta') { text += event.text; status.textContent = 'Scrivo la risposta…'; if (!paint) paint = setTimeout(() => { paint = null; renderText(); }, 60); }
+          if (event.type === 'delta') { text += event.text; status.textContent = 'Scrivo la risposta…'; if (!paint) paint = setTimeout(() => { paint = null; body.textContent = text; }, 100); }
           if (event.type === 'result') data = event.data;
           if (event.type === 'error') throw Error(event.error);
         }, controller.signal);
@@ -75,6 +73,7 @@ async function search(prompt, { history: retryHistory } = {}) {
     }
     if (run !== sequence || controller.signal.aborted || !result.isConnected) return;
     clearTimeout(paint); text = data.summary || data.results[0]?.description || 'Nessun risultato. Prova una ricerca più specifica.'; renderText(); renderSources(data.results);
+    attachImages(sources, query, { signal: controller.signal });
     if (data.scope) body.before(node('p', data.scope, 'research-scope'));
     status.textContent = data.incomplete ? 'Risposta parziale · chiedi di continuare.' : cached ? 'Ricerca completata · dalla cache' : 'Ricerca completata';
     const actions = node('div', null, 'research-actions');

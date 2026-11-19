@@ -109,10 +109,10 @@ export function attachImages(anchor, query, { signal, lang = window.GG_LANGUAGE?
     const valid = images.filter(Boolean).map(i => ({ ...i, src: safeImage(i.src), full: safeImage(i.full), page: safeImage(i.page) })).filter(i => i.src && i.page);
     if (!valid.length) { showPlaceholder('Nessuna immagine disponibile per questa ricerca.'); return; }
     strip.replaceChildren();
-    for (const image of valid) {
+    for (const image of valid.slice(0, 4)) {
       const figure = el('figure', null, 'search-image');
       const button = el('button'); button.type = 'button'; button.title = image.title; button.setAttribute('aria-label', 'Ingrandisci: ' + image.title);
-      const img = el('img'); img.alt = image.title; img.loading = strip.children.length < 2 ? 'eager' : 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
+      const img = el('img'); img.alt = image.title; img.loading = strip.children.length === 0 ? 'eager' : 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
       img.onerror = () => { if (image.full && image.full !== image.src && img.dataset.triedFull !== 'true') { img.dataset.triedFull = 'true'; img.src = image.full; return; }
         img.onerror = null; cache.delete('subject-8:' + lang + ':' + query.toLocaleLowerCase().replace(/\s+/g, ' ').trim()); figure.remove(); if (!strip.children.length) showPlaceholder('Nessuna immagine caricabile per questa ricerca.'); };
       button.append(img); button.onclick = () => viewer(image);

@@ -2,7 +2,7 @@ import { readAIStream } from './ai-stream.js';
 import { addResearchFollowups } from './research-followups.js';
 import { isNewsRequest } from './news-intent.js';
 import { renderMarkdown } from './markdown.js';
-import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-gallery-recovery';
+import { attachImages, googleImagesLink, imageSearchQuery, wantsImages } from './search-images.js?v=20261119-research-readability';
 import { buildOfficeFile, describeFile, detectFileFormat, fileName, FILE_TYPES } from './office-files.js';
 // Office files travel in chat history as a fenced JSON block so the AI can revise them later.
 const FILE_BLOCK = /\n*```gg-file\n([\s\S]*?)\n```\s*$/;
@@ -116,7 +116,7 @@ function fileCard(spec) {
     window.addEventListener('pagehide', () => { active?.abort(); window.speechSynthesis?.cancel(); });
     async function run(payload, container, shared) {
       let controller, runId, streamed = '', paint;
-      const paintStream = () => { paint = null; body.classList.add('has-markdown'); body.replaceChildren(renderMarkdown(streamed)); };
+      const paintStream = () => { paint = null; body.textContent = streamed; };
       if (shared) ({ controller, runId } = shared);
       else { active?.abort(); controller = new AbortController(); active = controller; runId = ++generation; }
       const body = el('div', '', 'assistant-output');
@@ -125,7 +125,6 @@ function fileCard(spec) {
       if (payload.mode === 'merge') progress.textContent = 'Merging both answers and checking where they disagree…';
       container.replaceChildren(el('span', 'GG' + (payload.mode === 'file' ? ' · ' + FILE_TYPES[payload.format].label + ' file' : payload.mode === 'image' ? ' · Image' : ''), 'author'), progress, body, stop);
       if (['search', 'deep', 'news'].includes(payload.mode)) { container.classList.add('research-conversation'); container.querySelector('.author').textContent = 'GG'; body.classList.add('fast-excerpt'); progress.classList.add('fast-status'); }
-      if (!shared && wantsImages(payload.prompt, payload.mode, payload.files?.length)) attachImages(progress, payload.prompt, { signal: controller.signal });
       const timer = shared ? null : setTimeout(() => controller.abort(), 115000);
       try {
         const response = await fetch('/gg-assistant', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream, application/json' }, body: JSON.stringify(payload), signal: controller.signal });
@@ -154,6 +153,7 @@ function fileCard(spec) {
           } catch {}
         }
         if (data.sources?.length) body.append(sources);
+        if (!shared && wantsImages(payload.prompt, payload.mode, payload.files?.length)) attachImages(body, payload.prompt, { signal: controller.signal });
         if (data.image && /^image\/(png|jpeg|webp)$/.test(data.image.mimeType) && /^[A-Za-z0-9+/]+={0,2}$/.test(data.image.data)) {
           const image = el('img'); image.alt = payload.prompt; image.src = `data:${data.image.mimeType};base64,${data.image.data}`; body.append(image);
           const download = el('a', 'Download image'); download.href = image.src; download.download = 'gg-image.' + data.image.mimeType.split('/')[1]; body.append(download);
