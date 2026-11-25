@@ -1,7 +1,7 @@
 /* GG app service worker: keeps the app shell available and shows an offline page.
    Network-first everywhere so users always get the latest deploy when online.
    API calls, Netlify internals and cross-origin requests are never cached. */
-const CACHE = 'gg-shell-20261117-img8';
+const CACHE = 'gg-shell-20261125-modern';
 const SHELL = ['/', '/app', '/offline.html', '/ios-native.js', '/manifest.webmanifest', '/favicon.svg?v=gg-logo-2', '/apple-touch-icon.png', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', event => {
